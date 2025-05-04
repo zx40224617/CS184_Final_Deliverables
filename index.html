@@ -26,6 +26,13 @@
       body {
         font-family: "Inter", sans-serif;
       }
+
+      code {
+        background-color: #f5f5f5;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
@@ -58,16 +65,49 @@
       <a href=""> </a>
 
       <h2>Abstract</h2>
-      The VR Deformation project aims to develop a real-time, interactive mesh
-      deformation system for virtual reality environments. By enhancing
+      This project is inspired by CS184 Project 4 about physical simulation. We
+      aims to develop a real-time, interactive mesh deformation system for
+      virtual reality environments using Unity and Meta Quest 3. By enhancing
       immersion through dynamic, responsive mesh modifications, we seek to
       explore novel ways users can interact with and manipulate virtual objects
-      directly via hand tracking or controller inputs.
+      directly via hand tracking or controller inputs. From the baseline, we
+      improve the physical simulation by applying TBD for a more realistic
+      objects deformation. We also replace the original mesh with a customized
+      mesh and rewrite the code for multi-objects interactions in the same
+      scene. We also build an immersive scene for better experience.
 
       <h2>Technical Approach</h2>
-      Custom Shader-Based Deformation: Leverages GPU-powered shaders to compute
-      and render mesh deformations at high performance without modifying the
-      underlying mesh data on the CPU.
+      We implement custom Shader-Based Deformation: Leverages GPU-powered
+      shaders to compute and render mesh deformations at high performance
+      without modifying the underlying mesh data on the CPU.
+
+      <h3>GPU: Computer Buffer</h3>
+      In typical physics simulation, unlike in project 4, it usually involve a
+      much more complex mesh that contains huge amounts of verticies. In this
+      case, we will need to populate a buffer to hold the vertex information
+      including position and velocities on the GPU using Computer Buffers. It is
+      simply a memory container that the Computer Shader read and write to. This
+      is much more efficient since we can now compute parallely on the GPU
+      without relying on CPU for dealing with large amount of data.
+
+      <br />
+      <br />
+
+      To utilize computer buffer, we need to know how much storage that we need
+      exactly. In our case, for each Vertex struct, there are 8 floats including
+      position in 3 different axis, velocity in 3 different axis, and uv. So the
+      total memory that we need will ended up being
+      <code>vertex_number * size_of_float * 8</code>
+
+      <br />
+      <br />
+
+      <h3>Deformation in Compute Shader</h3>
+      TBD
+
+      <h3>Rendering</h3>
+
+      <h3>Hand Interaction</h3>
 
       <div style="display: flex; flex-direction: column; align-items: center">
         <table
