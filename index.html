@@ -81,19 +81,19 @@
       shaders to compute and render mesh deformations at high performance
       without modifying the underlying mesh data on the CPU.
 
-      <h3>GPU: Computer Buffer</h3>
+      <h3>GPU: Compute Buffer</h3>
       In typical physics simulation, unlike in project 4, it usually involve a
       much more complex mesh that contains huge amounts of verticies. In this
       case, we will need to populate a buffer to hold the vertex information
-      including position and velocities on the GPU using Computer Buffers. It is
-      simply a memory container that the Computer Shader read and write to. This
+      including position and velocities on the GPU using Compute Buffers. It is
+      simply a memory container that the Compute Shader read and write to. This
       is much more efficient since we can now compute parallely on the GPU
       without relying on CPU for dealing with large amount of data.
 
       <br />
       <br />
 
-      To utilize computer buffer, we need to know how much storage that we need
+      To utilize compute buffer, we need to know how much storage that we need
       exactly. In our case, for each Vertex struct, there are 8 floats including
       position in 3 different axis, velocity in 3 different axis, and uv. So the
       total memory that we need will ended up being
@@ -106,8 +106,38 @@
       TBD
 
       <h3>Rendering</h3>
+      After the verticies have be altered, the compute shader are responsible
+      for rendering that reflects the changes. In the baseline project, there
+      are 2 differnet methods that are implemented, but we are focusing on the
+      one that we ended up using here, which is DrawProcedural.
+
+      <br />
+      <br />
+
+      In order to implement DrawProcedural, we need to turn off the MeshRenderer
+      whenever this method is selected. We first need to initiliaze a Structured
+      Buffer and bind it on the CPU side in the vertex shader. So we are
+      bascially just reading from the Compute Shader to access the position and
+      velocity after deformation. For sampling, we can use the VertexID
+      supported in Unity since the Structured Buffer has the same order as the
+      vertex buffer.
+
+      <br />
+      <br />
+
+      Bur for DrawProcedural, we need another Buffer called Index Buffer, which
+      we simply just copy the triangles of the mesh into a Graphics Buffer that
+      allows us to draw the traingles based on the deformed verticies as we
+      already read as mentioned above.
 
       <h3>Hand Interaction</h3>
+      The idea here is really easy, we first calculate the distance between
+      verticies and hand using the positions. and base on distance, apply
+      differnt level of pusing force using HLSL built in functions smoothstep().
+      Also, since we only want pushing force, we calculate the dot product of
+      the hand moving direction and the vertex. Using the HLSL built in function
+      saturate() to clamp out negtaive values so that there onlt force apply
+      when the vertex is relatively in front of the hand.
 
       <div style="display: flex; flex-direction: column; align-items: center">
         <table
