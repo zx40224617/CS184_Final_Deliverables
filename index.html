@@ -48,7 +48,9 @@
       <br />
 
       Link to webpage:
-      <a href=""></a>
+      <a href="https://zx40224617.github.io/CS184_Final_Deliverables/"
+        >https://zx40224617.github.io/CS184_Final_Deliverables/</a
+      >
       <br />
       Link to GitHub repository:
       <a href="https://github.com/zx40224617/CS184_Final_Deliverables"
@@ -103,15 +105,20 @@
       <br />
 
       <h3>Deformation in Compute Shader</h3>
-      Because we already have a per-vertex running program in compute shader, we are able to do 
-      vertices movements in the unity environment. In Modifymesh.compute, we are using similar modification 
-      only using the approximation of a force, which is just some complicated and restricted 
-      variables controlling the speed / displacement of the vertices movements. There are multiple 
-      restriction terms we are using to achieve better deformation simulation: <code>_distanceBegin; 
-      _distanceEnd; _pushforce; _elasticity; _drag; _maxOffset; _stiffFalloff; _maxVelocity; 
-      _velocityBlend; _handEnabled; </code> We will list and explain our "regularization" terms 
-      that you can change down below. 
-      
+      Because we already have a per-vertex running program in compute shader, we
+      are able to do vertices movements in the unity environment. In
+      Modifymesh.compute, we are using similar modification only using the
+      approximation of a force, which is just some complicated and restricted
+      variables controlling the speed / displacement of the vertices movements.
+      There are multiple restriction terms we are using to achieve better
+      deformation simulation:
+      <code
+        >_distanceBegin; _distanceEnd; _pushforce; _elasticity; _drag;
+        _maxOffset; _stiffFalloff; _maxVelocity; _velocityBlend; _handEnabled;
+      </code>
+      We will list and explain our "regularization" terms that you can change
+      down below.
+
       <br />
       <br />
 
@@ -126,47 +133,80 @@
         <tbody>
           <tr>
             <td><code>_distanceBegin</code></td>
-            <td>Outer radius where hand influence starts; farther ⇒ easier to press. When the distance from a vertex to a hand is ≤ _distanceBegin, the push force starts to grow from 0. Sets how far you can be and still touch the object.</td>
+            <td>
+              Outer radius where hand influence starts; farther ⇒ easier to
+              press. When the distance from a vertex to a hand is ≤
+              _distanceBegin, the push force starts to grow from 0. Sets how far
+              you can be and still touch the object.
+            </td>
             <td>0.010 – 0.030&nbsp;m</td>
           </tr>
           <tr>
             <td><code>_distanceEnd</code></td>
-            <td>Inner radius where push force reaches full strength. At distance ≤ _distanceEnd the push force reaches its full magnitude. Think of it as the “core” collision radius. Smaller values make the force spike only when the hand is almost touching.</td>
-            <td>0.01 – 0.08&nbsp;m (must be &lt; <code>_distanceBegin</code>)</td>
+            <td>
+              Inner radius where push force reaches full strength. At distance ≤
+              _distanceEnd the push force reaches its full magnitude. Think of
+              it as the “core” collision radius. Smaller values make the force
+              spike only when the hand is almost touching.
+            </td>
+            <td>
+              0.01 – 0.08&nbsp;m (must be &lt; <code>_distanceBegin</code>)
+            </td>
           </tr>
           <tr>
             <td><code>_pushforce</code></td>
-            <td>Scalar impulse multiplier; higher ⇒ deeper dents. Too high may cause instability or penetrations.</td>
+            <td>
+              Scalar impulse multiplier; higher ⇒ deeper dents. Too high may
+              cause instability or penetrations.
+            </td>
             <td>0.1 – 1 (plush)</td>
           </tr>
           <tr>
             <td><code>_elasticity</code></td>
-            <td>Spring-like return force toward bind pose; controls rebound speed.</td>
-            <td>Increase for snappy rebound; decrease for slow “memory-foam” return. Excessive values require higher _drag or _maxVelocity clamping.</td>
+            <td>
+              Spring-like return force toward bind pose; controls rebound speed.
+            </td>
+            <td>
+              Increase for snappy rebound; decrease for slow “memory-foam”
+              return. Excessive values require higher _drag or _maxVelocity
+              clamping.
+            </td>
           </tr>
           <tr>
             <td><code>_drag</code></td>
-            <td>Per-frame damping on velocity; lower ⇒ softer, higher ⇒ bouncy.</td>
+            <td>
+              Per-frame damping on velocity; lower ⇒ softer, higher ⇒ bouncy.
+            </td>
             <td>0.80 – 0.97</td>
           </tr>
           <tr>
             <td><code>_maxOffset</code></td>
-            <td>Maximum allowed displacement from initial position (safety clamp).</td>
+            <td>
+              Maximum allowed displacement from initial position (safety clamp).
+            </td>
             <td>0.01 – 0.05&nbsp;m</td>
           </tr>
           <tr>
             <td><code>_stiffFalloff</code></td>
-            <td>Exponent shaping the fall-in curve; &gt;1 stiff, &lt;1 soft.</td>
+            <td>
+              Exponent shaping the fall-in curve; &gt;1 stiff, &lt;1 soft.
+            </td>
             <td>0.3 – 3.0</td>
           </tr>
           <tr>
             <td><code>_maxVelocity</code></td>
-            <td>Hard cap on per-vertex speed; prevents numerical explosions.</td>
+            <td>
+              Hard cap on per-vertex speed; prevents numerical explosions.
+            </td>
             <td>Keep low for delicate cloth, higher for rigid rubber.</td>
           </tr>
           <tr>
             <td><code>_velocityBlend</code></td>
-            <td>Mix between positional push and hand-velocity push (0 → pos only, 1 → vel only). Lets you decide whether a quick slap matters more than static penetration.</td>
+            <td>
+              Mix between positional push and hand-velocity push (0 → pos only,
+              1 → vel only). Lets you decide whether a quick slap matters more
+              than static penetration.
+            </td>
             <td>0 – 1 (0.5–0.7 feels natural)</td>
           </tr>
           <tr>
@@ -176,15 +216,21 @@
           </tr>
         </tbody>
       </table>
-      
-      <h4>Eye-watering tips if you want to tweak your objects to the desired "feel".</h4>
-      Spatial bounds (_maxOffset, _distanceBegin, _distanceEnd) keep vertices inside a safe range.
-      Energy control (_pushforce, _elasticity, _drag, _maxVelocity) ensures impulses don’t explode numerically and that energy eventually dissipates.
-      Force-shaping curves (_stiffFalloff, _velocityBlend) smooth discontinuities that could otherwise create sudden big tearings or jitter.
-      Tweak these in pairs:
-      If you raise _pushforce, you almost always need a higher _drag or a lower _maxVelocity.
-      Decreasing _distanceEnd without adjusting _stiffFalloff can make forces too peaky; raise the falloff exponent to compensate.
-      Large _elasticity + low _drag + high _maxOffset is the recipe for “spaghetti bear”—use clamps wisely.
+
+      <h4>
+        Eye-watering tips if you want to tweak your objects to the desired
+        "feel".
+      </h4>
+      Spatial bounds (_maxOffset, _distanceBegin, _distanceEnd) keep vertices
+      inside a safe range. Energy control (_pushforce, _elasticity, _drag,
+      _maxVelocity) ensures impulses don’t explode numerically and that energy
+      eventually dissipates. Force-shaping curves (_stiffFalloff,
+      _velocityBlend) smooth discontinuities that could otherwise create sudden
+      big tearings or jitter. Tweak these in pairs: If you raise _pushforce, you
+      almost always need a higher _drag or a lower _maxVelocity. Decreasing
+      _distanceEnd without adjusting _stiffFalloff can make forces too peaky;
+      raise the falloff exponent to compensate. Large _elasticity + low _drag +
+      high _maxOffset is the recipe for “spaghetti bear”—use clamps wisely.
 
       <h3>Rendering</h3>
       After the verticies have be altered, the compute shader are responsible
@@ -220,24 +266,32 @@
       saturate() to clamp out negtaive values so that there onlt force apply
       when the vertex is relatively in front of the hand.
 
+      <h2>Results</h2>
       <div style="display: flex; flex-direction: column; align-items: center">
         <table
           style="width: 100%; text-align: center; border-collapse: collapse"
         >
           <tr>
             <td style="text-align: center">
-              <img src="images/unity1.jpg" width="400px" />
-              <figcaption>Interactive Demo setup in Unity</figcaption>
-            </td>
-            <td style="text-align: center">
-              <img src="images/unity2.jpg" width="400px" />
-              <figcaption>Interactive Object Mesh</figcaption>
+              <img src="images/teddy_bear_deform.gif" width="400px" />
+              <figcaption>Teddy Bear Deformation</figcaption>
             </td>
           </tr>
         </table>
       </div>
 
-      <h2>Results</h2>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/soda_deform.gif" width="400px" />
+              <figcaption>Sofa Deformation</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
       <h2>References</h2>
       <ul>
